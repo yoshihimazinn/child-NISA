@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>こども支援NISA シミュレーター</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        :root {
+            /* 2026 Calm Design Palette */
+            --primary: #546e7a;
+            /* Muted Blue-Grey */
+            --primary-dark: #37474f;
+            --primary-light: #eceff1;
+            --accent: #ffa726;
+            /* Softer Orange */
+            --danger: #ef5350;
+            --success: #66bb6a;
+            --text-main: #263238;
+            --text-muted: #78909c;
+            --bg-body: #f7f9fa;
+            /* Very light cool gray */
+            --bg-card: #ffffff;
+            --border: #cfd8dc;
+
+            /* Spacing & sizing */
+            --radius: 16px;
+            /* Larger radius for friendly feel */
+            --shadow: 0 8px 24px rgba(149, 157, 165, 0.1);
+            /* Soft diffused shadow */
+            --container-max: 1000px;
+            /* Slightly narrower reading width */
+            --touch-min: 48px;
+            /* Safe touch target */
+        }
+
+        /* Hide Number Spinners */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        /* Reset & Base */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Global Responsiveness Fixes */
+        html,
+        body {
+            overflow-x: hidden;
+            /* Prevent horizontal scroll */
+            max-width: 100vw;
+        }
+
+        img,
+        canvas,
+        svg,
+        video {
+            max-width: 100%;
+            height: auto;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        span,
+        li,
+        dt,
+        dd {
+            overflow-wrap: break-word;
+            /* Ensure text wraps */
+        }
+
+
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.7;
+            /* More breathing room */
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            /* Wide layout */
+            margin: 0 auto;
+            padding: 16px;
+            /* Reduced padding */
+            width: 100%;
+            /* Ensure container respects width */
+            box-sizing: border-box;
+        }
+
+
+        /* 3-Column Layout Wrapper */
+        .layout-wrapper {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        /* Ad Columns (Desktop) */
+        .ad-column {
+            display: none;
+            /* Hidden on mobile */
+            background: #f0f2f5;
+            border-radius: var(--radius);
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border: 2px dashed var(--border);
+        }
+
+        .ad-column.hidden-mobile {
+            display: none;
+        }
+
+        /* Show Right Sidebar on mobile (stacked) with clean styling */
+        .ad-column.right-sidebar {
+            display: block;
+            /* Always show */
+            background: transparent;
+            border: none;
+            min-height: auto;
+            padding: 0;
+            margin-top: 24px;
+        }
+
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+            /* Reduced margin */
+            padding: 0 16px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: var(--primary-dark);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            /* Tighter gap */
+            width: 100%;
+            /* Ensure full width */
+        }
+
+
+        /* Valid CSS Grid Overflow Fix */
+        .main-grid>* {
+            min-width: 0;
+        }
+
+        /* Desktop Layout - 3 Columns */
+        @media(min-width: 1200px) {
+            .container {
+                max-width: 100%;
+                padding: 0 40px;
+            }
+
+            .layout-wrapper {
+                grid-template-columns: 300px minmax(600px, 1000px) 300px;
+                /* Ad | Main | Ad */
+                justify-content: center;
+                align-items: start;
+            }
+
+            .ad-column.hidden-mobile {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                padding: 20px;
+                background: transparent;
+                border: none;
+            }
+
+            /* Sticky Ad Content */
+            .ad-content-sticky {
+                position: sticky;
+                top: 24px;
+                width: 100%;
+                background: #fff;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 16px;
+                text-align: center;
+                min-height: 300px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #999;
+            }
+        }
+
+        /* Main Content Area (Center) */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
+            /* Ensure full width in center col */
+        }
+
+        /* Details/Summary Styling for Settings */
+        details#settings-details {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+        }
+
+        details#settings-details summary {
+            padding: 20px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            user-select: none;
+        }
+
+        details#settings-details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details#settings-details summary::after {
+            content: '';
+            width: 24px;
+            height: 24px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2337474f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-size: contain;
+            transition: transform 0.3s ease;
+        }
+
+        details#settings-details[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        details#settings-details .details-content {
+            padding: 0 20px 20px 20px;
+            border-top: 1px solid var(--border);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 20px;
+            /* Reduced padding (Compact) */
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+
+        /* Forms - Input Cards */
+        .form-group {
+            margin-bottom: 20px;
+            /* Reduced from 32px */
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            /* Reduced from 10px */
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        /* Card-like input styling for focus */
+        .input-card-wrapper {
+            background: #fff;
+            border-radius: 12px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0 16px;
+            /* Reset padding for height-based centering */
+            height: var(--touch-min);
+            /* Fixed height 48px */
+            line-height: var(--touch-min);
+            /* Center text vertically */
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            background-color: #fafafa;
+            transition: all 0.2s ease;
+            appearance: none;
+            /* Remove default browser styling */
+        }
+
+        textarea.form-control {
+            height: auto;
+            padding: 12px 16px;
+            line-height: 1.5;
+        }
+
+        select.form-control {
+            padding-right: 40px;
+            /* Space for arrow */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2378909c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group .form-control {
+            padding-right: 50px;
+        }
+
+        .input-group-text {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            font-size: 0.9rem;
+        }
+
+        /* Slider sync */
+        .range-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 4px;
+            margin-top: 16px;
+        }
+
+        input[type=range] {
+            flex: 1;
+            cursor: pointer;
+            height: 24px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 100px;
+            /* Pill shape for modern feel */
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            width: 100%;
+            min-height: var(--touch-min);
+            letter-spacing: 0.02em;
+        }
+
+        /* Hero Execution Button */
+        .btn-primary {
+            background: linear-gradient(135deg, #546e7a 0%, #37474f 100%);
+            color: white;
+            font-size: 1.1rem;
+            box-shadow: 0 8px 20px rgba(55, 71, 79, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(55, 71, 79, 0.35);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        /* Outline Button (Export/Share) */
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background-color: #fff;
+        }
+
+        /* Quick Button (Child Allowance) - Subtle & Calm */
+        .btn-quick {
+            background-color: #f5f7fa;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            padding: 10px 16px;
+            margin-bottom: 20px;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            width: auto;
+            display: inline-flex;
+        }
+
+        .btn-quick:hover {
+            background-color: #eceff1;
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: none;
+        }
+
+        /* Validation & Alerts */
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .alert-info {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            border-color: #b8daff;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            bottom: 40px;
+        }
+
+        /* Results Area */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: var(--primary-light);
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-card h4 {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .metric-card .value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .metric-card.highlight .value {
+            color: var(--accent);
+        }
+
+        .metric-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-bottom: 30px;
+            padding: 0 20px;
+            /* Added more horizontal whitespace */
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 20px;
+            max-height: 400px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        th {
+            background: var(--bg-body);
+            position: sticky;
+            top: 0;
+            text-align: center;
+            padding: 8px 4px;
+            /* Tighter padding */
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+            font-size: 0.8rem;
+            /* Smaller font */
+        }
+
+        td {
+            padding: 6px 4px;
+            /* Tighter padding */
+            border-bottom: 1px solid var(--border);
+            text-align: right;
+            font-size: 0.85rem;
+            /* Smaller font */
+        }
+
+        td:first-child {
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* Year column centered */
+
+        /* Warnings Layout */
+        .warning-block {
+            border-left: 4px solid var(--accent);
+            background: #fff8e1;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .restriction-badge {
+            display: inline-block;
+            background: var(--danger);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        /* Q&A Section */
+        .qa-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .qa-section h3 {
+            margin-bottom: 16px;
+            font-size: 1.2rem;
+        }
+
+        details {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            background: white;
+        }
+
+        details summary {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            list-style: none;
+            /* Hide default triangle */
+            position: relative;
+            padding-right: 40px;
+        }
+
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details summary::after {
+            content: '+';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        details[open] summary::after {
+            content: '-';
+        }
+
+        details[open] summary {
+            border-bottom: 1px solid var(--border);
+            background: var(--primary-light);
+        }
+
+        .qa-content {
+            padding: 16px;
+            font-size: 0.95rem;
+            color: #444;
+            line-height: 1.7;
+        }
+
+        /* Affiliate Area */
+        .affiliate-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .affiliate-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            /* Mobile: Force 2 columns */
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .aff-card {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            /* Mobile: Vertical Stack */
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+            transition: transform 0.2s;
+            height: 100%;
+            /* Uniform height */
+        }
+
+        .aff-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .aff-img {
+            width: 50px;
+            height: 50px;
+            background: #eee;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        /* Desktop/Tablet Adjustments for Affiliate */
+        @media(min-width: 600px) {
+            .affiliate-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+
+            .aff-card {
+                flex-direction: row;
+                text-align: left;
+                padding: 16px;
+                gap: 16px;
+            }
+
+            .aff-img {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 0;
+                font-size: 0.8rem;
+            }
+        }
+
+        .aff-content {
+            flex: 1;
+        }
+
+        .aff-btn {
+            display: block;
+            margin-top: 8px;
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 6px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding-bottom: 40px;
+        }
+
+        /* Helper */
+        .hidden {
+            display: none;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>こども支援NISA シミュレーター</h1>
+            <p>2026年税制改正案対応 | 月額最大50,000円 | 生涯枠600万円</p>
+        </header>
+
+        <!-- Layout Wrapper -->
+        <div class="layout-wrapper">
+            <!-- Left Ad Column -->
+            <div class="ad-column hidden-mobile">
+                <div class="ad-content-sticky">
+                    <div>
+                        <p style="margin-bottom:8px"><strong>注目トピック</strong></p>
+                        <p style="font-size:0.8rem">広告スペース（左）</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content (Center) -->
+            <div class="main-content">
+                <!-- Inner content will be refactored to Details + Main in next step -->
+                <!-- Currently keeping aside + main structure temporarily inside main-content -->
+                <!-- Settings Card (Collapsible) -->
+                <details id="settings-details" open>
+                    <summary>シミュレーション設定 <span
+                            style="font-size:0.9rem; font-weight:normal; color:#666; margin-left:auto; margin-right:12px">クリックで開閉</span>
+                    </summary>
+                    <div class="details-content">
+                        <!-- Child Age -->
+                        <div class="form-group">
+                            <label>お子様の生年月日</label>
+                            <div class="dob-group" style="display: flex; gap: 8px; align-items: stretch; height: 48px;">
+                                <div
+                                    style="flex: 1; display: flex; align-items: center; background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 0 8px;">
+                                    <input type="number" id="dob-year" placeholder="YYYY"
+                                        style="border: none; background: transparent; width: 100%; text-align: center; font-size: 1rem; outline: none;"
+                                        oninput="updateDaySelect(); updateAgeDisplay()" list="year-options"
+                                        onfocus="this.select()" onblur="updateAgeDisplay();"
+                                        onchange="updateDaySelect();">
+                                    <span
+                                        style="font-weight: bold; color: var(--text-muted); font-size: 0.9rem; margin-left: 4px;">年</span>
+                                </div>
+
+                                <div
+                                    style="flex: 1; display: flex; align-items: center; background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 0 8px;">
+                                    <select id="dob-month"
+                                        style="border: none; background: transparent; width: 100%; text-align: center; font-size: 1rem; outline: none; appearance: none; cursor: pointer;"
+                                        onchange="updateDaySelect(); updateAgeDisplay()">
+                                        <!-- Populated by JS -->
+                                    </select>
+                                    <span
+                                        style="font-weight: bold; color: var(--text-muted); font-size: 0.9rem; pointer-events: none;">月</span>
+                                </div>
+
+                                <div
+                                    style="flex: 1; display: flex; align-items: center; background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 0 8px;">
+                                    <select id="dob-day"
+                                        style="border: none; background: transparent; width: 100%; text-align: center; font-size: 1rem; outline: none; appearance: none; cursor: pointer;"
+                                        onchange="updateAgeDisplay()">
+                                        <!-- Populated by JS -->
+                                    </select>
+                                    <span
+                                        style="font-weight: bold; color: var(--text-muted); font-size: 0.9rem; pointer-events: none;">日</span>
+                                </div>
+                                <datalist id="year-options"></datalist>
+                            </div>
+
+                            <p id="age-display" class="metric-sub text-right" style="margin-top: 8px;">現在 0歳 0ヶ月</p>
+                        </div>
+
+                        <!-- Monthly Input -->
+                        <div class="form-group">
+                            <label>毎月の積立額 (円)</label>
+                            <button type="button" class="btn btn-quick" onclick="setMonthly(15000)">
+                                児童手当全額 (¥15,000) をセット
+                            </button>
+                            <div class="input-group">
+                                <input type="number" id="monthly-amount" class="form-control" value="10000" min="0"
+                                    max="50000" step="1000">
+                                <span class="input-group-text">円</span>
+                            </div>
+                            <div class="range-wrap">
+                                <input type="range" id="monthly-slider" min="0" max="50000" step="1000" value="10000"
+                                    list="monthly-ticks">
+                                <datalist id="monthly-ticks">
+                                    <option value="0"></option>
+                                    <option value="5000"></option>
+                                    <option value="10000"></option>
+                                    <option value="15000"></option>
+                                    <option value="20000"></option>
+                                    <option value="25000"></option>
+                                    <option value="30000"></option>
+                                    <option value="35000"></option>
+                                    <option value="40000"></option>
+                                    <option value="45000"></option>
+                                    <option value="50000"></option>
+                                </datalist>
+                                <div
+                                    style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); margin-top: 4px; padding: 0 2px;">
+                                    <span>0</span>
+                                    <span>1万</span>
+                                    <span>2万</span>
+                                    <span>3万</span>
+                                    <span>4万</span>
+                                    <span>5万</span>
+                                </div>
+                            </div>
+
+                            <div id="monthly-warning" class="alert alert-error hidden" style="margin-top: 8px;">
+                                月額上限は50,000円です。
+                            </div>
+                        </div>
+
+                        <!-- One-time bonus -->
+                        <div class="form-group">
+                            <label>年間一括追加 (任意・年1回)</label>
+                            <div class="input-group">
+                                <input type="number" id="yearly-bonus" class="form-control" value="0" min="0">
+                                <span class="input-group-text">円</span>
+                            </div>
+                            <small style="color: var(--text-muted);">※毎月積立との合計が年60万円を超える場合は自動調整されます。</small>
+                        </div>
+
+                        <!-- Rate & Duration -->
+                        <div class="form-group">
+                            <label>想定年利 (%)</label>
+                            <div class="input-group">
+                                <input type="number" id="return-rate" class="form-control" value="3.0" step="0.1"
+                                    min="0" max="20">
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <div class="range-wrap">
+                                <input type="range" id="rate-slider" min="0" max="20" step="0.1" value="3.0"
+                                    list="rate-ticks">
+                                <datalist id="rate-ticks">
+                                    <option value="0"></option>
+                                    <option value="2"></option>
+                                    <option value="4"></option>
+                                    <option value="6"></option>
+                                    <option value="8"></option>
+                                    <option value="10"></option>
+                                    <option value="12"></option>
+                                    <option value="14"></option>
+                                    <option value="16"></option>
+                                    <option value="18"></option>
+                                    <option value="20"></option>
+                                </datalist>
+                                <div
+                                    style="display: flex; justify-content: space-between; font-size: 0.70rem; color: var(--text-muted); margin-top: 4px; padding: 0 2px;">
+                                    <span>0%</span>
+                                    <span>2%</span>
+                                    <span>4%</span>
+                                    <span>6%</span>
+                                    <span>8%</span>
+                                    <span>10%</span>
+                                    <span>12%</span>
+                                    <span>14%</span>
+                                    <span>16%</span>
+                                    <span>18%</span>
+                                    <span>20%</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-group">
+                            <label>終了条件</label>
+                            <select id="end-condition" class="form-control">
+                                <option value="12">満12歳まで (中学入学)</option>
+                                <option value="13">満13歳まで</option>
+                                <option value="14">満14歳まで</option>
+                                <option value="15">満15歳まで (高校入学)</option>
+                                <option value="16">満16歳まで</option>
+                                <option value="17">満17歳まで</option>
+                                <option value="18" selected>満18歳まで (大学入学)</option>
+                                <option value="20">満20歳まで (成人)</option>
+                                <option value="lifetime">生涯枠(600万円)使い切りまで</option>
+                            </select>
+                        </div>
+
+                        <button id="calc-btn" class="btn btn-primary" onclick="runSimulation()">シミュレーション実行</button>
+                        <div class="card"
+                            style="box-shadow:none; border:none; background:transparent; padding:0; margin-top:20px;">
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">
+                                <strong>前提条件:</strong> 年間投資枠 最大60万円 / 生涯投資枠 最大600万円 / 想定手数料 年率0.1% (内枠) / 月末積立・月次複利
+                            </p>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Result Area -->
+                <div id="result-area" class="card" style="background-color: #ffffff;">
+                    <h2>シミュレーション結果</h2>
+
+                    <!-- Warnings -->
+                    <div class="warning-block">
+                        <div class="restriction-badge">重要</div>
+                        <strong>12歳までは原則引き出し不可</strong><br>
+                        こども支援NISAは、お子様が12歳になるまで払出し制限があります（災害等やむを得ない事情を除く）。
+                    </div>
+
+                    <div id="runtime-warnings"></div>
+
+                    <!-- Summary Cards -->
+                    <div class="summary-cards">
+                        <div class="metric-card">
+                            <h4>総投資元本</h4>
+                            <div class="value" id="res-principal">¥0</div>
+                            <div class="metric-sub">(= 貯金した場合)</div>
+                        </div>
+                        <div class="metric-card highlight">
+                            <h4>運用収益</h4>
+                            <div class="value" id="res-profit">¥0</div>
+                            <div class="metric-sub" id="res-profit-percent">(+0%)</div>
+                        </div>
+                        <div class="metric-card">
+                            <h4>最終評価額</h4>
+                            <div class="value" id="res-total">¥0</div>
+                            <div class="metric-sub" id="res-diff-savings">貯金より +¥0</div>
+                        </div>
+                        <div class="metric-card">
+                            <h4>完了年齢</h4>
+                            <div class="value" id="res-age">-歳</div>
+                            <div class="metric-sub">時点で終了</div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Chart -->
+                    <div class="chart-container">
+                        <canvas id="simChart"></canvas>
+                    </div>
+
+                    <!-- Export & Table -->
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 10px;">
+                        <button id="share-btn" class="btn btn-outline" onclick="shareImage()"
+                            style="width: auto; padding: 8px 16px; display: none;">
+                            SNSでシェア
+                        </button>
+                        <button class="btn btn-outline" onclick="captureImage()"
+                            style="width: auto; padding: 8px 16px;">
+                            画像で保存
+                        </button>
+                        <button class="btn btn-outline" onclick="exportCSV()" style="width: auto; padding: 8px 16px;">
+                            CSVダウンロード
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="result-table">
+                            <thead>
+                                <tr>
+                                    <th>年</th>
+                                    <th>年齢</th>
+                                    <th>累計元本</th>
+                                    <th>運用益</th>
+                                    <th>評価額</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- JS populated -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+
+
+
+
+                <!-- Q&A Section -->
+                <div class="qa-section card" style="margin-top: 24px;">
+                    <details>
+                        <summary>Q1. いつから始まりますか？</summary>
+                        <div class="qa-content">
+                            2027年1月に開始予定です。2025年12月の税制改正大綱で創設が盛り込まれ、2026年中に金融庁から詳細が公表される見通しです。
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Q2. ジュニアNISA（旧制度）との最大の違いは？</summary>
+                        <div class="qa-content">
+                            払出し制限の緩和です。旧制度は原則18歳まで不可でしたが、新制度では中学・高校入学等の負担に合わせ、12歳以降に子の同意があれば払い出せます。
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Q3. 年間にいくらまで投資できますか？</summary>
+                        <div class="qa-content">
+                            年間60万円（月5万円）です。第1子・第2子の児童手当（月1.5万円）を積立に充て、家計の負担を抑えながら運用することも可能です。
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Q4. 非課税で持てる上限額（生涯投資枠）は？</summary>
+                        <div class="qa-content">
+                            累積で600万円です。0歳から18歳まで月平均約2.7万円を積み立てる計算になり、長期間の複利効果を生かして利用できます。
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Q5. 親の新NISA枠とは別に持てますか？</summary>
+                        <div class="qa-content">
+                            はい、完全に別枠です。親2人分（計3,600万円）と子1人分（600万円）を合わせ、家族全体で最大4,200万円の非課税枠を活用できます。
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Q6. 贈与税がかかる心配はありませんか？</summary>
+                        <div class="qa-content">
+                            年間投資枠（60万円）は暦年贈与の非課税枠（110万円）内のため、通常はかかりません。ただし、他からの贈与を含め合計110万円を超えないよう注意が必要です。
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Q7. 12歳まで引き出せないのは不便では？</summary>
+                        <div class="qa-content">
+                            教育資金を守るための制限ですが、旧制度の18歳から12歳（中学入学時期）へと緩和されました。この年齢以降は子の同意を得て引き出しが可能です。
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Q8. 児童手当が「月3万円」の第3子以降はどう設定すべき？</summary>
+                        <div class="qa-content">
+                            手当の年36万円を充てても投資枠に24万円の余裕があります。そこへお年玉や祝い金などのまとまった資金を追加投入するのがおすすめです。
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Q9. 親の「成長投資枠」とどちらを優先すべき？</summary>
+                        <div class="qa-content">
+                            教育資金が目的なら<strong>「こども支援NISA」が優先</strong>です。子の枠を使い切った後、親のつみたて投資枠（年120万円）を併用する戦略が効果的とされています。
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Q10. 18歳になった後はどうなりますか？</summary>
+                        <div class="qa-content">
+                            成人向け新NISAへ自動的に移行します。移行後も引き続き非課税で運用でき、大学進学や新生活の資金として引き出すことも可能です
+                        </div>
+                    </details>
+                    <!-- Merged Old Questions -->
+                    <details>
+                        <summary>Q11. 元本割れするリスクはありますか？</summary>
+                        <div class="qa-content">
+                            はい、投資信託などへの投資となるため、市場環境によっては元本を割り込む（損をする）可能性があります。一般的に、長期（10〜20年以上）で分散投資を続けることでリスクを抑える効果が期待できます。
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Q12. 金融機関を変更することはできますか？</summary>
+                        <div class="qa-content">
+                            はい、年単位で変更することが可能です。ただし手続きには時間がかかる場合があります。
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Q13. 月々の積立金額は変更できますか？</summary>
+                        <div class="qa-content">
+                            はい、いつでも変更可能です。ボーナス月のみ増額するなどの設定も金融機関によって可能です。
+                        </div>
+                    </details>
+                </div>
+            </div> <!-- End Main Content -->
+
+
+            <!-- Right Ad Column (Affiliate) -->
+            <div class="ad-column right-sidebar">
+                <div class="ad-content-sticky" style="border:none; padding:0; background:transparent;">
+                    <!-- Affiliate Section (Moved Here) -->
+                    <div class="affiliate-section card"
+                        style="margin-top: 0; padding: 16px; border: none; box-shadow: none; background: transparent;">
+                        <div
+                            style="text-align: center; margin-bottom: 16px; font-weight: bold; color: var(--primary); font-size: 1rem;">
+                            ～ つみたて申し込み ～
+                        </div>
+
+                        <div class="affiliate-grid" style="grid-template-columns: 1fr; gap: 16px;">
+                            <!-- Item 1 -->
+                            <div class="aff-card"
+                                style="flex-direction: column; text-align: center; padding: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border);">
+                                <div class="aff-img"
+                                    style="margin: 0 auto 8px; width: 40px; height: 40px; font-size: 0.7rem;">社名A</div>
+                                <div class="aff-content">
+                                    <strong style="display:block; margin-bottom:4px;">A証券</strong>
+                                    <p style="font-size: 0.75rem; color: #666; margin-bottom: 8px;">ポイント還元率No.1！</p>
+                                    <a href="#" class="aff-btn" target="_blank" rel="noopener"
+                                        style="font-size: 0.8rem; padding: 4px;">公式サイトへ</a>
+                                </div>
+                            </div>
+
+                            <!-- Item 2 -->
+                            <div class="aff-card"
+                                style="flex-direction: column; text-align: center; padding: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border);">
+                                <div class="aff-img"
+                                    style="margin: 0 auto 8px; width: 40px; height: 40px; font-size: 0.7rem;">社名B</div>
+                                <div class="aff-content">
+                                    <strong style="display:block; margin-bottom:4px;">B証券</strong>
+                                    <p style="font-size: 0.75rem; color: #666; margin-bottom: 8px;">手数料業界最安。</p>
+                                    <a href="#" class="aff-btn" target="_blank" rel="noopener"
+                                        style="font-size: 0.8rem; padding: 4px;">公式サイトへ</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- End Layout Wrapper -->
+
+
+        <footer>
+            <p>免責事項：本シミュレーションは2026年税制改正案に基づく仮定の試算であり、将来の運用成果を保証するものではありません。<br>
+                実際の制度運用や税務上の取り扱いは、金融庁または各証券会社の公式情報をご確認ください。</p>
+            <p>© 2026 Children NISA Simulator</p>
+        </footer>
+
+        <!-- Toast -->
+        <div id="toast" class="toast">メッセージ</div>
+    </div> <!-- End Container -->
+
+    <script>
+        // --- Constants ---
+        const MAX_YEARLY = 600000;
+        const MAX_LIFETIME = 6000000;
+        const FEE_RATE = 0.001; // 0.1% default hidden fee logic as requested
+
+        // --- State ---
+        let myChart = null;
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initDobFields();
+            updateAgeDisplay();
+
+            // Check Share Support
+            if (navigator.share) {
+                document.getElementById('share-btn').style.display = 'inline-block';
+            }
+
+
+            // Initial run
+            // Initial run
+            runSimulation(false);
+
+
+            // Event Listeners
+
+            // Removed broken #dob listener (handled by inline oninput/onchange)
+
+            const monthlyInput = document.getElementById('monthly-amount');
+            const monthlySlider = document.getElementById('monthly-slider');
+
+            monthlyInput.addEventListener('input', (e) => {
+                let val = parseInt(e.target.value) || 0;
+                // Immediate constraint check for UI feedback
+                if (val > 50000) {
+                    document.getElementById('monthly-warning').classList.remove('hidden');
+                } else {
+                    document.getElementById('monthly-warning').classList.add('hidden');
+                }
+                monthlySlider.value = val;
+            });
+
+            monthlyInput.addEventListener('change', (e) => {
+                let val = parseInt(e.target.value) || 0;
+                if (val > 50000) {
+                    val = 50000;
+                    e.target.value = 50000;
+                    showToast('月額上限50,000円に補正しました');
+                    document.getElementById('monthly-warning').classList.add('hidden');
+                }
+                monthlySlider.value = val;
+            });
+
+            monthlySlider.addEventListener('input', (e) => {
+                let val = parseInt(e.target.value);
+                if (val > 50000) {
+                    // Determine if we stop slider or just warn. Spec says validate on input.
+                    // Let's cap slider visual logic if we strictly enforce, but user might want to drag past.
+                    // For simulator UX, better to snap back or warn. Let's warn.
+                    document.getElementById('monthly-warning').classList.remove('hidden');
+                } else {
+                    document.getElementById('monthly-warning').classList.add('hidden');
+                }
+                monthlyInput.value = val;
+            });
+
+            monthlySlider.addEventListener('change', (e) => {
+                let val = parseInt(e.target.value);
+                if (val > 50000) {
+                    val = 50000;
+                    e.target.value = 50000;
+                    monthlyInput.value = 50000;
+                    showToast('月額上限50,000円に補正しました');
+                    document.getElementById('monthly-warning').classList.add('hidden');
+                }
+            });
+
+            // Rate Slider Logic
+            const rateInput = document.getElementById('return-rate');
+            const rateSlider = document.getElementById('rate-slider');
+
+            rateInput.addEventListener('input', (e) => {
+                let val = parseFloat(e.target.value) || 0;
+                rateSlider.value = val;
+            });
+
+            rateSlider.addEventListener('input', (e) => {
+                rateInput.value = e.target.value;
+            });
+
+        });
+
+        // --- Core Functions ---
+
+        function updateAgeDisplay() {
+            const y = document.getElementById('dob-year').value;
+            const m = document.getElementById('dob-month').value;
+            const d = document.getElementById('dob-day').value;
+
+            if (!y || !m || !d) return;
+            const dob = new Date(y, m - 1, d);
+
+            const info = getAgeInfo(dob, new Date());
+
+            let text = "";
+            if (info.age < 0) {
+                text = "誕生前";
+            } else if (info.age === 0) {
+                text = `生後 ${info.months}ヶ月`;
+            } else {
+                text = `現在 ${info.age}歳 ${info.months}ヶ月`;
+            }
+            document.getElementById('age-display').textContent = text;
+        }
+
+        function getAgeInfo(dob, targetDate) {
+            let age = targetDate.getFullYear() - dob.getFullYear();
+            let m = targetDate.getMonth() - dob.getMonth();
+            if (m < 0 || (m === 0 && targetDate.getDate() < dob.getDate())) {
+                age--;
+                m += 12; // approximate correction
+            }
+            if (targetDate.getDate() < dob.getDate()) {
+                m--;
+                if (m < 0) { m = 11; }
+            }
+            return { age, months: m };
+        }
+
+        function setMonthly(amount) {
+            document.getElementById('monthly-amount').value = amount;
+            document.getElementById('monthly-slider').value = amount;
+            document.getElementById('monthly-warning').classList.add('hidden');
+            showToast(`児童手当全額 (¥${amount.toLocaleString()}) をセットしました`);
+        }
+
+        // --- Core Functions ---
+
+        function initDobFields() {
+            const today = new Date();
+            const yearInput = document.getElementById('dob-year');
+            const monthSelect = document.getElementById('dob-month');
+            const daySelect = document.getElementById('dob-day');
+
+            // Set Year
+            yearInput.value = today.getFullYear();
+
+            // Populate Year Datalist (from 18 years ago to next year)
+            const yearOptions = document.getElementById('year-options');
+            yearOptions.innerHTML = '';
+            const currentYear = today.getFullYear();
+            for (let i = currentYear + 1; i >= currentYear - 18; i--) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                yearOptions.appendChild(opt);
+            }
+
+            // Populate Month
+            for (let i = 1; i <= 12; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.text = i;
+                if (i === today.getMonth() + 1) opt.selected = true;
+                monthSelect.appendChild(opt);
+            }
+
+            // Populate Day (Initial)
+            updateDaySelect(today.getDate());
+        }
+
+        function updateDaySelect(selectedDay = null) {
+            const year = parseInt(document.getElementById('dob-year').value) || new Date().getFullYear();
+            const month = parseInt(document.getElementById('dob-month').value) || 1;
+            const daySelect = document.getElementById('dob-day');
+            const currentDay = selectedDay || parseInt(daySelect.value) || 1;
+
+            // Days in month
+            const daysInMonth = new Date(year, month, 0).getDate(); // last day of prev month (month is 1-indexed here? No, Date(y, m, 0) takes 1-indexed month and returns last day of *that* month-1? 
+            // Wait: new Date(2023, 1, 0) -> Jan 31. Month is 0-indexed in JS Date?
+            // But select value is 1-12. 
+            // new Date(year, month, 0) where month is 1-12...
+            // JS Date(y, m, d): m is 0-11.
+            // If month=1 (Jan), we want days in Jan.
+            // new Date(y, 1, 0) -> Feb 0 -> Jan 31. Correct.
+
+            daySelect.innerHTML = '';
+            for (let i = 1; i <= daysInMonth; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.text = i;
+                if (i === currentDay) opt.selected = true;
+                daySelect.appendChild(opt);
+            }
+            if (daySelect.selectedIndex === -1 && daySelect.options.length > 0) {
+                daySelect.selectedIndex = daySelect.options.length - 1; // Clamp to last day
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function runSimulation(autoScroll = true) {
+
+            // 1. Gather Inputs
+            const y = document.getElementById('dob-year').value;
+            const m = document.getElementById('dob-month').value;
+            const d = document.getElementById('dob-day').value;
+            const dob = new Date(y, m - 1, d); // Construct Date object manually
+            const startMonthly = parseInt(document.getElementById('monthly-amount').value) || 0;
+            const yearlyBonus = parseInt(document.getElementById('yearly-bonus').value) || 0;
+            const ratePercent = parseFloat(document.getElementById('return-rate').value) || 0;
+            const endCond = document.getElementById('end-condition').value;
+
+            // 2. Validate Inputs again before run
+            let monthly = startMonthly;
+            if (monthly > 50000) monthly = 50000;
+
+            // 3. Setup Calc Variables
+            // Monthly Rate: r_m = rate / 12
+            // Effective Rate = r_m - fee_m
+            const r_m = (ratePercent / 100) / 12;
+            const f_m = FEE_RATE / 12;
+            const eff_r_m = r_m - f_m;
+
+            let currentDate = new Date(); // Start from this month
+            // Align to end of month for logic? Sim is monthly steps.
+
+            let totalPrincipal = 0;
+            let totalValue = 0;
+            let isLifetimeReached = false;
+            let stopDate = null;
+
+            const results = []; // Array of year-end snapshots
+            const runtimeWarnings = [];
+
+            // Determine max months (e.g. up to 50 years to be safe, or until logic stops)
+            const MAX_MONTHS = 50 * 12;
+            let currentMonthVal = 0; // Current Value
+
+            // Tracking current year accumulation
+            let currentYear = currentDate.getFullYear();
+            let yearlyInvested = 0;
+
+            // Snapshot holders
+            let yearStartPrincipal = 0;
+
+            for (let i = 0; i < MAX_MONTHS; i++) {
+                // A. Check End Condition
+                let ageInfo = getAgeInfo(dob, currentDate);
+
+                // Generic numeric check
+                const endAgeNum = parseInt(endCond);
+                if (!isNaN(endAgeNum) && ageInfo.age >= endAgeNum) break;
+
+                if (endCond === 'lifetime' && isLifetimeReached) break;
+
+                // ... (rest is same) ...
+                let investThisMonth = 0;
+
+                // Monthly Contribution
+                investThisMonth += monthly;
+
+                // Yearly Bonus (Assume added in Dec or specific month? Let's say June for simplicity or distribute? Spec says "Annual lump sum added... adjust if exceeds". Let's apply in December or current month if it's the start?)
+                // Implementation: Apply bonus in December (Month 11)
+                if (currentDate.getMonth() === 11) {
+                    investThisMonth += yearlyBonus;
+                }
+
+                // C. Validate Yearly Limit (600k)
+                // Check if adding investThisMonth exceeds remaining yearly allowance
+                // But we need to know how much we already invested this year.
+                // Wait, we need to track yearlyInvested reset on Jan.
+                if (currentDate.getMonth() === 0) {
+                    yearlyInvested = 0;
+                }
+
+                let amountAllowedYearly = MAX_YEARLY - yearlyInvested;
+                if (investThisMonth > amountAllowedYearly) {
+                    // If we are over, clamp it.
+                    // Record warning if it's the first time for this year and actually changing something
+                    if (investThisMonth > 0 && amountAllowedYearly < investThisMonth) {
+                        // Only warn once per distinct year? Or just silently clamp as per "Auto adjust" requirement in spec logic
+                        // We will add a general warning if frequent. 
+                        // Let's just store the adjustment fact.
+                    }
+                    investThisMonth = Math.max(0, amountAllowedYearly);
+                }
+
+                // D. Validate Lifetime Limit (6M)
+                let amountAllowedLifetime = MAX_LIFETIME - totalPrincipal;
+                if (investThisMonth > amountAllowedLifetime) {
+                    investThisMonth = Math.max(0, amountAllowedLifetime);
+                    if (!isLifetimeReached && amountAllowedLifetime < (monthly + (currentDate.getMonth() === 11 ? yearlyBonus : 0))) {
+                        isLifetimeReached = true;
+                        stopDate = new Date(currentDate);
+                        runtimeWarnings.push(`生涯枠(600万円)に到達したため ${stopDate.getFullYear()}年${stopDate.getMonth() + 1}月 で積立を停止しました。`);
+                    }
+                }
+
+                // E. Apply Investment & Growth
+                // "End of month payment" -> Apply interest to existing, then add investment? 
+                // Or add investment then interest? 
+                // Standard FV: Payment at end of period. So Interest on opening balance, then add payment.
+                // Opening Balance grows
+                currentMonthVal = currentMonthVal * (1 + eff_r_m);
+                // Add payment
+                currentMonthVal += investThisMonth;
+
+                totalPrincipal += investThisMonth;
+                yearlyInvested += investThisMonth;
+
+                // F. Year End Snapshot (or if loop matches end condition exactly)
+                // Save snapshot every December OR if it's the very last iteration
+                if (currentDate.getMonth() === 11) {
+                    results.push({
+                        year: currentDate.getFullYear(),
+                        age: ageInfo.age,
+                        principal: totalPrincipal,
+                        value: currentMonthVal,
+                        yearlyInvest: yearlyInvested
+                    });
+                }
+
+                // Increment Month
+                currentDate.setMonth(currentDate.getMonth() + 1);
+            }
+
+            // If loop finished but didn't land on Dec, push final partial year
+            // (Just to show final state)
+            if (results.length === 0 || results[results.length - 1].year !== (currentDate.getFullYear() - (currentDate.getMonth() === 0 ? 1 : 0))) {
+                // If we just stepped into Jan, the last Dec was captured. 
+                // If we broke mid-year (e.g. turned 18 in June), capture that June state.
+                // We need to decrement currentDate back by 1 month to get the actual "end state" date?
+                // Actually `currentMonthVal` is the state at the END of the loop iteration (last processed month).
+                // `currentDate` has been incremented to next month.
+                let finalAge = getAgeInfo(dob, new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)).age;
+                results.push({
+                    year: currentDate.getFullYear(), // Or "Final"
+                    age: finalAge,
+                    principal: totalPrincipal,
+                    value: currentMonthVal,
+                    yearlyInvest: yearlyInvested // Partial year
+                });
+            }
+
+            // 4. Render Results
+            renderUI(results, runtimeWarnings, isLifetimeReached);
+
+            // Auto-scroll
+            if (autoScroll) {
+                setTimeout(() => {
+                    const resArea = document.getElementById('result-area');
+                    if (resArea) {
+                        resArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 100);
+            }
+
+        }
+
+
+        function renderUI(data, warnings, isLifetimeReached) {
+            // Summary
+            if (!data || data.length === 0) return;
+            const last = data[data.length - 1];
+
+            const profit = last.value - last.principal;
+            const profitPercent = last.principal > 0 ? (profit / last.principal * 100) : 0;
+
+            document.getElementById('res-principal').innerText = `¥${Math.floor(last.principal).toLocaleString()}`;
+            document.getElementById('res-total').innerText = `¥${Math.floor(last.value).toLocaleString()}`;
+
+            document.getElementById('res-profit').innerText = `¥${Math.floor(profit).toLocaleString()}`;
+            document.getElementById('res-profit').style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)';
+
+            // New Comparison Metrics
+            const diffElem = document.getElementById('res-diff-savings');
+            if (diffElem) {
+                diffElem.innerText = `貯金より ${profit >= 0 ? '+' : ''}¥${Math.floor(profit).toLocaleString()}`;
+                diffElem.style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)';
+            }
+
+            const percentElem = document.getElementById('res-profit-percent');
+            if (percentElem) {
+                percentElem.innerText = `(${profit >= 0 ? '+' : ''}${profitPercent.toFixed(1)}%)`;
+                percentElem.style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)';
+            }
+
+            document.getElementById('res-age').innerText = `${last.age}歳`;
+            // Add duration/year info
+            // We need a place for it. The user asked "Show what year / how many years".
+            // Let's modify the sub-text of res-age or add a line.
+            // Existing: <div class="metric-sub">時点で終了</div>
+            // Let's change the .metric-sub content or append.
+
+            // Calculate duration (Years elapsed)
+            const startYear = data[0].year;
+            const endYear = last.year;
+            const duration = endYear - startYear + 1; // Inclusive count
+
+            const ageSub = document.querySelector('#res-age + .metric-sub');
+            if (ageSub) {
+                ageSub.innerHTML = `${endYear}年 (推定${duration}年目)<br>時点で終了`;
+            }
+
+            // Warnings
+            const warnContainer = document.getElementById('runtime-warnings');
+            warnContainer.innerHTML = '';
+            if (warnings.length > 0) {
+                warnings.forEach(w => {
+                    const div = document.createElement('div');
+                    div.className = 'alert alert-info';
+                    div.innerText = w;
+                    warnContainer.appendChild(div);
+                });
+            }
+
+            // Chart
+            updateChart(data);
+
+            // Table
+            const tbody = document.querySelector('#result-table tbody');
+            tbody.innerHTML = '';
+            data.forEach(d => {
+                const tr = document.createElement('tr');
+                const prof = d.value - d.principal;
+                tr.innerHTML = `
+                <td>${d.year}</td>
+                <td>${d.age}</td>
+                <td>¥${Math.floor(d.principal).toLocaleString()}</td>
+                <td style="color:${prof >= 0 ? 'var(--success)' : 'var(--danger)'}">¥${Math.floor(prof).toLocaleString()}</td>
+                <td><strong>¥${Math.floor(d.value).toLocaleString()}</strong></td>
+            `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateChart(data) {
+            // Context fetched later
+            const labels = data.map(d => `${d.age}歳`);
+            const dataPrincipal = data.map(d => Math.floor(d.principal)); // Renamed from principalData
+            const dataProfit = data.map(d => Math.floor(d.value - d.principal)); // Renamed from profitData
+
+            if (myChart) myChart.destroy();
+            const ctx = document.getElementById('simChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '累計元本',
+                            data: dataPrincipal,
+                            backgroundColor: '#CCE8FF', // Light Blue
+                            hoverBackgroundColor: '#CCE8FF',
+                            stack: 'Stack 0',
+                        },
+                        {
+                            label: '運用益',
+                            data: dataProfit,
+                            backgroundColor: '#136BC9', // Dark Blue
+                            hoverBackgroundColor: '#FF6F61', // Living Coral (Vibrant but calm)
+                            stack: 'Stack 0',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            display: false, // Hide X axis
+                            grid: { display: false }
+                        },
+                        y: {
+                            stacked: true,
+                            display: false, // Hide Y axis
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }, // Hide legend to save space if needed, or keep? Top legend is fine.
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += '¥' + Math.floor(context.parsed.y).toLocaleString();
+                                    }
+                                    return label;
+                                },
+                                labelColor: function (context) {
+                                    if (context.datasetIndex === 1) { // Profit Dataset
+                                        return {
+                                            borderColor: '#FF6F61',
+                                            backgroundColor: '#FF6F61'
+                                        };
+                                    }
+                                    return {
+                                        borderColor: '#CCE8FF',
+                                        backgroundColor: '#CCE8FF'
+                                    };
+                                },
+                                footer: (tooltipItems) => {
+                                    let total = 0;
+                                    tooltipItems.forEach((t) => total += t.parsed.y);
+                                    return '合計: ¥' + total.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    hover: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    interaction: {
+                        mode: 'index', // Changed from 'nearest' to 'index' to activate both on hover
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+
+        function exportCSV() {
+            const table = document.getElementById("result-table");
+            let csv = [];
+            // Header
+            const headers = Array.from(table.querySelectorAll("th")).map(th => th.innerText);
+            csv.push(headers.join(","));
+
+            // Rows
+            const rows = table.querySelectorAll("tbody tr");
+            rows.forEach(row => {
+                const cols = Array.from(row.querySelectorAll("td")).map(td => {
+                    // Remove currency symbols and commas for CSV raw data? Or keep as string?
+                    // Usually better to keep as raw number, but sticking to display text is easier.
+                    // Let's strip ¥ and , for better Excel usage
+                    return td.innerText.replace(/[¥,]/g, "");
+                });
+                csv.push(cols.join(","));
+            });
+
+            // BOM for Excel
+            const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+            const blob = new Blob([bom, csv.join("\n")], { type: "text/csv" });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "nisa_simulation.csv";
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+        function captureImage() {
+            // Target the entire container to include Header + Inputs + Results
+            const element = document.querySelector(".container");
+            const btn = document.querySelector("button[onclick='captureImage()']");
+            const btn2 = document.querySelector("button[onclick='exportCSV()']");
+
+            // Elements to hide (Affiliate & Q&A)
+            const qa = document.querySelector(".qa-section");
+            const aff = document.querySelector(".affiliate-section");
+
+            // Hide buttons & unwanted sections
+            if (btn) btn.style.display = "none";
+            if (btn2) btn2.style.display = "none";
+            if (qa) qa.style.display = "none";
+            if (aff) aff.style.display = "none";
+
+            html2canvas(element, {
+                backgroundColor: '#ffffff',
+                scale: 2 // Improve quality
+            }).then(canvas => {
+                // Restore visibility
+                if (btn) btn.style.display = "";
+                if (btn2) btn2.style.display = "";
+                if (qa) qa.style.display = "";
+                if (aff) aff.style.display = "";
+
+                const link = document.createElement('a');
+                link.download = 'children_nisa_sim_result.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            }).catch(err => {
+                console.error("Capture failed:", err);
+                // Restore visibility in case of error
+                if (btn) btn.style.display = "";
+                if (btn2) btn2.style.display = "";
+                if (qa) qa.style.display = "";
+                if (aff) aff.style.display = "";
+                showToast("画像の保存に失敗しました");
+
+            });
+        }
+
+        function shareImage() {
+            // Check support
+            if (!navigator.share) {
+                alert("お使いのブラウザはシェア機能に対応していません。\n「画像で保存」をご利用ください。");
+                return;
+            }
+
+            // Same capture logic as captureImage but to Blob
+            const element = document.querySelector(".container");
+            const btn = document.querySelector("button[onclick='captureImage()']");
+            const btn2 = document.querySelector("button[onclick='exportCSV()']");
+            const btn3 = document.getElementById('share-btn');
+
+            const qa = document.querySelector(".qa-section");
+            const aff = document.querySelector(".affiliate-section");
+
+            if (btn) btn.style.display = "none";
+            if (btn2) btn2.style.display = "none";
+            if (btn3) btn3.style.display = "none";
+            if (qa) qa.style.display = "none";
+            if (aff) aff.style.display = "none";
+
+            html2canvas(element, {
+                backgroundColor: '#ffffff',
+                scale: 2
+            }).then(canvas => {
+                // Restore visibility
+                if (btn) btn.style.display = "";
+                if (btn2) btn2.style.display = "";
+                if (btn3) btn3.style.display = "";
+                if (qa) qa.style.display = "";
+                if (aff) aff.style.display = "";
+
+                canvas.toBlob(blob => {
+                    if (!blob) return;
+                    const file = new File([blob], "nisa_simulation.png", { type: "image/png" });
+
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            files: [file],
+                            title: 'こども支援NISAシミュレーション結果',
+                            text: '我が家のNISAシミュレーション結果です！ #こども支援NISA'
+                        }).catch(err => console.log("Share canceled", err));
+                    } else {
+                        alert("このブラウザは画像のシェアに対応していません。");
+                    }
+                }, "image/png");
+
+            }).catch(err => {
+                console.error("Capture failed:", err);
+                if (btn) btn.style.display = "";
+                if (btn2) btn2.style.display = "";
+                if (btn3) btn3.style.display = "";
+                if (qa) qa.style.display = "";
+                if (aff) aff.style.display = "";
+                showToast("シェア用画像の生成に失敗しました");
+            });
+        }
+    </script>
+
+</body>
+
+</html>
