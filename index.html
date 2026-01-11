@@ -798,7 +798,48 @@
 
         /* Helper */
         .hidden {
+            display: none !important;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: var(--radius);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
         }
 
         .text-right {
@@ -819,12 +860,19 @@
         <div class="layout-wrapper">
             <!-- Left Ad Column -->
             <div class="ad-column hidden-mobile">
+                <!-- Left Ad Column -->
+                <div class="ad-column hidden-mobile">
+                    <!-- Temporarily Hidden -->
+                    <!--
                 <div class="ad-content-sticky">
                     <div>
                         <p style="margin-bottom:8px"><strong>注目トピック</strong></p>
-                        <p style="font-size:0.8rem">広告スペース（左）</p>
+                        
                     </div>
                 </div>
+                -->
+                </div>
+
             </div>
 
             <!-- Main Content (Center) -->
@@ -843,11 +891,12 @@
                             <div class="dob-group" style="display: flex; gap: 8px; align-items: stretch; height: 48px;">
                                 <div
                                     style="flex: 1; display: flex; align-items: center; background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 0 8px;">
-                                    <input type="number" id="dob-year" placeholder="YYYY"
-                                        style="border: none; background: transparent; width: 100%; text-align: center; font-size: 1rem; outline: none;"
-                                        oninput="updateDaySelect(); updateAgeDisplay()" list="year-options"
-                                        onfocus="this.select()" onblur="updateAgeDisplay();"
-                                        onchange="updateDaySelect();">
+                                    <select id="dob-year"
+                                        style="border: none; background: transparent; width: 100%; text-align: center; font-size: 1rem; outline: none; appearance: none; cursor: pointer;"
+                                        onchange="updateDaySelect(); updateAgeDisplay()">
+                                        <!-- Populated by JS -->
+                                    </select>
+
                                     <span
                                         style="font-weight: bold; color: var(--text-muted); font-size: 0.9rem; margin-left: 4px;">年</span>
                                 </div>
@@ -873,8 +922,9 @@
                                     <span
                                         style="font-weight: bold; color: var(--text-muted); font-size: 0.9rem; pointer-events: none;">日</span>
                                 </div>
-                                <datalist id="year-options"></datalist>
+                                <!-- <datalist id="year-options"></datalist> -->
                             </div>
+
 
                             <p id="age-display" class="metric-sub text-right" style="margin-top: 8px;">現在 0歳 0ヶ月</p>
                         </div>
@@ -1009,6 +1059,11 @@
                         <div class="restriction-badge">重要</div>
                         <strong>12歳までは原則引き出し不可</strong><br>
                         こども支援NISAは、お子様が12歳になるまで払出し制限があります（災害等やむを得ない事情を除く）。
+                    </div>
+
+                    <div style="margin-bottom: 20px; font-size: 0.85rem; color: var(--text-muted);">
+                        <strong>【免責事項】<br>
+                            本シミュレーション結果は、将来の運用成果を示唆・保証するものではありません。税制改正の内容や実際の運用成績により、結果は変動します。投資判断はご自身の責任において行ってください。</strong>
                     </div>
 
                     <div id="runtime-warnings"></div>
@@ -1171,6 +1226,8 @@
             <div class="ad-column right-sidebar">
                 <div class="ad-content-sticky" style="border:none; padding:0; background:transparent;">
                     <!-- Affiliate Section (Moved Here) -->
+                    <!-- Temporarily Hidden -->
+                    <!--
                     <div class="affiliate-section card"
                         style="margin-top: 0; padding: 16px; border: none; box-shadow: none; background: transparent;">
                         <div
@@ -1179,7 +1236,7 @@
                         </div>
 
                         <div class="affiliate-grid" style="grid-template-columns: 1fr; gap: 16px;">
-                            <!-- Item 1 -->
+                            
                             <div class="aff-card"
                                 style="flex-direction: column; text-align: center; padding: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border);">
                                 <div class="aff-img"
@@ -1192,7 +1249,7 @@
                                 </div>
                             </div>
 
-                            <!-- Item 2 -->
+                            
                             <div class="aff-card"
                                 style="flex-direction: column; text-align: center; padding: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border);">
                                 <div class="aff-img"
@@ -1206,16 +1263,83 @@
                             </div>
                         </div>
                     </div>
+                    -->
                 </div>
+
             </div>
         </div> <!-- End Layout Wrapper -->
 
 
         <footer>
+            <p style="margin-bottom: 24px;">最終更新日：2026年1月12日</p>
+
+            <div style="margin-bottom: 16px; font-size: 0.9rem; line-height: 1.6;">
+                <p>現役世代の資産形成を応援する、最新税制対応の計算ツールサイトです。<br>
+                    運営者：よし</p>
+            </div>
+
+            <div style="margin-bottom: 16px; display: flex; justify-content: center; gap: 20px;">
+                <a href="#" onclick="openModal('privacy-modal'); return false;"
+                    style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">プライバシーポリシー</a>
+                <a href="#" onclick="openModal('contact-modal'); return false;"
+                    style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">お問い合わせ</a>
+            </div>
             <p>免責事項：本シミュレーションは2026年税制改正案に基づく仮定の試算であり、将来の運用成果を保証するものではありません。<br>
                 実際の制度運用や税務上の取り扱いは、金融庁または各証券会社の公式情報をご確認ください。</p>
             <p>© 2026 Children NISA Simulator</p>
         </footer>
+
+        <!-- Privacy Policy Modal -->
+        <div id="privacy-modal" class="modal-overlay" onclick="closeModal(event, 'privacy-modal')">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeModal(null, 'privacy-modal')">×</button>
+                <h2>プライバシーポリシー</h2>
+                <div class="qa-content" style="font-size: 0.9rem; line-height: 1.8;">
+                    <p><strong>1. 利用者情報の取得と解析ツールについて</strong><br>
+                        当サイトでは、サービスの質向上のためにGoogle
+                        Analytics等のアクセス解析ツールを利用しています。これらはトラフィックデータの収集のためにCookie（クッキー）を使用しますが、データは匿名で収集されており、個人を特定するものではありません。Cookieを無効にすることで収集を拒否することも可能です。
+                    </p>
+                    <br>
+                    <p><strong>2. 広告配信について</strong><br>
+                        当サイトは、アフィリエイトプログラム等の広告配信サービスを利用する場合があります。広告配信事業者は、ユーザーの興味に応じた広告を表示するためにCookieを使用することがあります。</p>
+                    <br>
+                    <p><strong>3. 個人情報の取り扱い</strong><br>
+                        お問い合わせ等で取得したお名前やメールアドレス等の個人情報は、ご連絡への対応のみに利用し、法令に基づく場合を除き、第三者に開示することはありません。</p>
+                    <br>
+                    <p><strong>4. 著作権について</strong><br>
+                        当サイトに掲載されている文章・画像・プログラム等の著作権は、運営者または正当な権利者に帰属します。無断転載・複製を禁じます。</p>
+                    <br>
+                    <p><strong>5. リンクについて</strong><br>
+                        当サイトは原則リンクフリーです。ただし、インラインフレーム等の使用や画像の直リンクはお断りいたします。</p>
+                    <br>
+                    <p><strong>6. 免責事項</strong><br>
+                        本サイトのシミュレーション結果はあくまで試算であり、将来の運用成果を保証するものではありません。当サイトの情報を用いて行う一切の行為について、運営者は何ら責任を負いません。投資判断はご自身の責任で行ってください。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Contact Modal -->
+        <div id="contact-modal" class="modal-overlay" onclick="closeModal(event, 'contact-modal')">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeModal(null, 'contact-modal')">×</button>
+                <h2>お問い合わせ</h2>
+                <div class="qa-content">
+                    <p>本ツールに関する不具合報告やご要望は、以下のフォームまたはメールにてお願いいたします。</p>
+                    <br>
+                    <p><strong>お問い合わせフォーム:</strong><br>
+                        <a href="https://forms.gle/Ti5B6C1x3ANsxK5a9" target="_blank" rel="noopener"
+                            style="color: var(--primary); text-decoration: underline;">
+                            受付フォームを開く
+                        </a>
+                    </p>
+                    <br>
+                    <p><strong>メール:</strong> yoshihimazinn@yahoo.co.jp</p>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Toast -->
         <div id="toast" class="toast">メッセージ</div>
@@ -1366,18 +1490,22 @@
             const monthSelect = document.getElementById('dob-month');
             const daySelect = document.getElementById('dob-day');
 
-            // Set Year
-            yearInput.value = today.getFullYear();
-
-            // Populate Year Datalist (from 18 years ago to next year)
-            const yearOptions = document.getElementById('year-options');
-            yearOptions.innerHTML = '';
+            // Set Year (Populate Select)
+            const yearSelect = document.getElementById('dob-year');
+            yearSelect.innerHTML = '';
             const currentYear = today.getFullYear();
+            // Range: Next year (for newborns coming soon) down to 18 years ago
             for (let i = currentYear + 1; i >= currentYear - 18; i--) {
                 const opt = document.createElement('option');
                 opt.value = i;
-                yearOptions.appendChild(opt);
+                opt.text = i + "年"; // Add "年" for clarity
+                if (i === currentYear) opt.selected = true;
+                yearSelect.appendChild(opt);
             }
+
+            // Populate Year Datalist (Removed)
+            // const yearOptions = document.getElementById('year-options'); ...
+
 
             // Populate Month
             for (let i = 1; i <= 12; i++) {
@@ -1425,6 +1553,20 @@
             t.innerText = msg;
             t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // --- Modal Functions ---
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('open');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeModal(event, modalId) {
+            // Close if clicked on overlay (event.target === overlay) or explicitly called (event === null)
+            if (event === null || event.target.id === modalId) {
+                document.getElementById(modalId).classList.remove('open');
+                document.body.style.overflow = '';
+            }
         }
 
         function runSimulation(autoScroll = true) {
