@@ -1927,106 +1927,145 @@
             a.click();
             window.URL.revokeObjectURL(url);
         }
-        function captureImage() {
-            // Target the entire container to include Header + Inputs + Results
-            const element = document.querySelector(".container");
-            const btn = document.querySelector("button[onclick='captureImage()']");
-            const btn2 = document.querySelector("button[onclick='exportCSV()']");
-
-            // Elements to hide (Affiliate & Q&A)
-            const qa = document.querySelector(".qa-section");
-            const aff = document.querySelector(".affiliate-section");
-
-            // Hide buttons & unwanted sections
-            if (btn) btn.style.display = "none";
-            if (btn2) btn2.style.display = "none";
-            if (qa) qa.style.display = "none";
-            if (aff) aff.style.display = "none";
-
-            html2canvas(element, {
-                backgroundColor: '#ffffff',
-                scale: 2 // Improve quality
-            }).then(canvas => {
-                // Restore visibility
-                if (btn) btn.style.display = "";
-                if (btn2) btn2.style.display = "";
-                if (qa) qa.style.display = "";
-                if (aff) aff.style.display = "";
-
-                const link = document.createElement('a');
-                link.download = 'children_nisa_sim_result.png';
-                link.href = canvas.toDataURL();
-                link.click();
-            }).catch(err => {
-                console.error("Capture failed:", err);
-                // Restore visibility in case of error
-                if (btn) btn.style.display = "";
-                if (btn2) btn2.style.display = "";
-                if (qa) qa.style.display = "";
-                if (aff) aff.style.display = "";
-                showToast("画像の保存に失敗しました");
-
-            });
-        }
-
-        function shareImage() {
-            // Check support
-            if (!navigator.share) {
-                alert("お使いのブラウザはシェア機能に対応していません。\n「画像で保存」をご利用ください。");
-                return;
-            }
-
-            // Same capture logic as captureImage but to Blob
+        async function captureImage() {
             const element = document.querySelector(".container");
             const btn = document.querySelector("button[onclick='captureImage()']");
             const btn2 = document.querySelector("button[onclick='exportCSV()']");
             const btn3 = document.getElementById('share-btn');
 
-            const qa = document.querySelector(".qa-section");
-            const aff = document.querySelector(".affiliate-section");
+            // Sections to hide
+            const sectionsToHide = [
+                document.querySelector(".qa-section"),
+                document.querySelector(".affiliate-section"),
+                btn, btn2, btn3
+            ];
 
-            if (btn) btn.style.display = "none";
-            if (btn2) btn2.style.display = "none";
-            if (btn3) btn3.style.display = "none";
-            if (qa) qa.style.display = "none";
-            if (aff) aff.style.display = "none";
+            // Hide
+            sectionsToHide.forEach(el => { if (el) el.style.display = "none"; });
 
-            html2canvas(element, {
-                backgroundColor: '#ffffff',
-                scale: 2
-            }).then(canvas => {
-                // Restore visibility
-                if (btn) btn.style.display = "";
-                if (btn2) btn2.style.display = "";
-                if (btn3) btn3.style.display = "";
-                if (qa) qa.style.display = "";
-                if (aff) aff.style.display = "";
-
-                canvas.toBlob(blob => {
-                    if (!blob) return;
-                    const file = new File([blob], "nisa_simulation.png", { type: "image/png" });
-
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        navigator.share({
-                            files: [file],
-                            title: 'こども支援NISAシミュレーション結果',
-                            text: '我が家のNISAシミュレーション結果です！ #こども支援NISA'
-                        }).catch(err => console.log("Share canceled", err));
-                    } else {
-                        alert("このブラウザは画像のシェアに対応していません。");
+            try {
+                const canvas = await html2canvas(element, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    useCORS: true, // Important for external assets/fonts
+                    logging: false,
+                    onclone: (clonedDoc) => {
+                        // Ensure cloned elements are visible/correct if needed
                     }
-                }, "image/png");
+                });
 
-            }).catch(err => {
+                // Download
+                const link = document.createElement('a');
+                link.download = 'nisa_simulation.png';
+                link.href = canvas.toDataURL("image/png");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            } catch (err) {
                 console.error("Capture failed:", err);
-                if (btn) btn.style.display = "";
-                if (btn2) btn2.style.display = "";
-                if (btn3) btn3.style.display = "";
-                if (qa) qa.style.display = "";
-                if (aff) aff.style.display = "";
-                showToast("シェア用画像の生成に失敗しました");
+                showToast("画像の生成に失敗しました: " + (err.message || "Unknown error"));
+            } finally {
+                // Restore
+                sectionsToHide.forEach(el => {
+                    if (el) el.style.display = "";
+                });
+                // Re-hide share button if not supported? No, it respects initial state? 
+                // Wait, btn3 (share-btn) might have been 'none' initially if not supported.
+                // We should check navigator.share again or specific ID logic.
+                // Actually, the initial logic sets display: inline-block if supported.
+                // So resetting to "" (empty string) might default to inline or block, which is fine since .btn is inline-flex.
+                // But specifically for share-btn, it defaults to display:none in css (via style attribute or class?).
+                // In Line 1048: style="... display: none;"
+                // So resetting to "" removes the inline style 'display:none', making it visible?
+                // Correct logic: Store original display values.
+            }
+        }
+
+        // Helper to handle visibility properly
+        function setVisibility(elements, visible) {
+            elements.forEach(item => {
+                if (!item.el) return;
+                if (visible) {
+                    item.el.style.display = item.original;
+                } else {
+                    item.original = item.el.style.display;
+                    item.el.style.display = 'none';
+                }
             });
         }
+
+        async function safeCapture(actionType) {
+            const element = document.querySelector(".container");
+            const items = [
+                { el: document.querySelector("button[onclick='captureImage()']") },
+                { el: document.querySelector("button[onclick='exportCSV()']") },
+                { el: document.getElementById('share-btn') },
+                { el: document.querySelector(".qa-section") },
+                { el: document.querySelector(".affiliate-section") },
+                { el: document.querySelector(".ad-column.hidden-mobile") }, // Hide desktop ads if visible
+                { el: document.querySelector(".ad-column.right-sidebar") },
+                { el: document.querySelector("footer") } // Maybe hide footer too for clean image? User didn't ask, but cleaner. Let's keep footer as it has copyright.
+            ];
+
+            // Hide
+            setVisibility(items, false);
+
+            try {
+                // Try Scale 2 first
+                let canvas;
+                try {
+                    canvas = await html2canvas(element, {
+                        backgroundColor: '#ffffff',
+                        scale: 2,
+                        useCORS: true,
+                        logging: false
+                    });
+                } catch (e) {
+                    console.log("Scale 2 failed, retrying with Scale 1");
+                    canvas = await html2canvas(element, {
+                        backgroundColor: '#ffffff',
+                        scale: 1, // Fallback for low memory devices
+                        useCORS: true
+                    });
+                }
+
+                if (actionType === 'download') {
+                    const link = document.createElement('a');
+                    link.download = 'nisa_sim_result.png';
+                    link.href = canvas.toDataURL("image/png");
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else if (actionType === 'share') {
+                    canvas.toBlob(blob => {
+                        if (!blob) throw new Error("Blob creation failed");
+                        const file = new File([blob], "nisa_sim_result.png", { type: "image/png" });
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            navigator.share({
+                                files: [file],
+                                title: 'こども支援NISAシミュレーション',
+                                text: 'シミュレーション結果をシェアします！'
+                            }).catch(err => console.log("Share canceled", err));
+                        } else {
+                            alert("この端末は画像のシェアに対応していません。");
+                        }
+                    }, "image/png");
+                }
+
+            } catch (err) {
+                console.error("Capture failed:", err);
+                showToast("エラーが発生しました: " + (err.message || "Canvas Error"));
+            } finally {
+                // Restore
+                setVisibility(items, true);
+            }
+        }
+
+        // Expose new wrappers
+        function captureImage() { safeCapture('download'); }
+        function shareImage() { safeCapture('share'); }
+
     </script>
 
 </body>
