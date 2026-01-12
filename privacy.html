@@ -106,7 +106,14 @@
 
         <div
             style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; font-size: 0.9rem;">
-            <p>最終更新日：2026年1月13日</p>
+            <p>最終更新日：<span id="last-updated"></span></p>
+            <script>
+                const lastUpdated = new Date(document.lastModified);
+                const year = lastUpdated.getFullYear();
+                const month = lastUpdated.getMonth() + 1;
+                const day = lastUpdated.getDate();
+                document.getElementById('last-updated').textContent = `${year}年${month}月${day}日`;
+            </script>
         </div>
     </div>
 

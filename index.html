@@ -1296,7 +1296,14 @@
 
 
         <footer>
-            <p style="margin-bottom: 24px;">最終更新日：2026年1月12日</p>
+            <p style="margin-bottom: 24px;">最終更新日：<span id="last-updated"></span></p>
+            <script>
+                const lastUpdated = new Date(document.lastModified);
+                const year = lastUpdated.getFullYear();
+                const month = lastUpdated.getMonth() + 1;
+                const day = lastUpdated.getDate();
+                document.getElementById('last-updated').textContent = `${year}年${month}月${day}日`;
+            </script>
 
             <div style="margin-bottom: 16px; font-size: 0.9rem; line-height: 1.6;">
                 <p>現役世代の資産形成を応援する、最新税制対応の計算ツールサイトです。<br>
