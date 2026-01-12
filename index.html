@@ -125,8 +125,8 @@
             gap: 20px;
         }
 
-        /* Ad Columns (Desktop) */
-        .ad-column {
+        /* Sidebar Info (Desktop) - Renamed from ad-column */
+        .sidebar-info {
             display: none;
             /* Hidden on mobile */
             background: #f0f2f5;
@@ -140,12 +140,12 @@
             border: 2px dashed var(--border);
         }
 
-        .ad-column.hidden-mobile {
+        .sidebar-info.hidden-mobile {
             display: none;
         }
 
         /* Show Right Sidebar on mobile (stacked) with clean styling */
-        .ad-column.right-sidebar {
+        .sidebar-info.right-sidebar {
             display: block;
             /* Always show */
             background: transparent;
@@ -205,7 +205,7 @@
                 align-items: start;
             }
 
-            .ad-column.hidden-mobile {
+            .sidebar-info.hidden-mobile {
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-start;
@@ -562,7 +562,7 @@
         }
 
         .metric-sub {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
             margin-top: 4px;
         }
@@ -601,7 +601,7 @@
             /* Tighter padding */
             font-weight: 600;
             border-bottom: 2px solid var(--border);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             /* Smaller font */
         }
 
@@ -610,7 +610,7 @@
             /* Tighter padding */
             border-bottom: 1px solid var(--border);
             text-align: right;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             /* Smaller font */
         }
 
@@ -794,6 +794,7 @@
             color: var(--text-muted);
             font-size: 0.8rem;
             padding-bottom: 40px;
+            font-size: 0.85rem;
         }
 
         /* Helper */
@@ -859,11 +860,10 @@
         <!-- Layout Wrapper -->
         <div class="layout-wrapper">
             <!-- Left Ad Column -->
-            <div class="ad-column hidden-mobile">
-                <!-- Left Ad Column -->
-                <div class="ad-column hidden-mobile">
-                    <!-- Temporarily Hidden -->
-                    <!--
+            <!-- Left Ad Column -->
+            <div class="sidebar-info hidden-mobile">
+                <!-- Temporarily Hidden -->
+                <!--
                 <div class="ad-content-sticky">
                     <div>
                         <p style="margin-bottom:8px"><strong>注目トピック</strong></p>
@@ -871,9 +871,8 @@
                     </div>
                 </div>
                 -->
-                </div>
-
             </div>
+
 
             <!-- Main Content (Center) -->
             <div class="main-content">
@@ -1223,7 +1222,7 @@
 
 
             <!-- Right Ad Column (Affiliate) -->
-            <div class="ad-column right-sidebar">
+            <div class="sidebar-info right-sidebar">
                 <div class="ad-content-sticky" style="border:none; padding:0; background:transparent;">
                     <!-- Affiliate Section (Moved Here) -->
                     <!-- Temporarily Hidden -->
@@ -2003,8 +2002,8 @@
                 { el: document.getElementById('share-btn') },
                 { el: document.querySelector(".qa-section") },
                 { el: document.querySelector(".affiliate-section") },
-                { el: document.querySelector(".ad-column.hidden-mobile") }, // Hide desktop ads if visible
-                { el: document.querySelector(".ad-column.right-sidebar") },
+                { el: document.querySelector(".sidebar-info.hidden-mobile") }, // Hide desktop ads if visible
+                { el: document.querySelector(".sidebar-info.right-sidebar") },
                 { el: document.querySelector("footer") } // Maybe hide footer too for clean image? User didn't ask, but cleaner. Let's keep footer as it has copyright.
             ];
 
