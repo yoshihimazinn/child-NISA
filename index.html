@@ -935,30 +935,47 @@
                                         <!-- Populated by JS -->
                                     </select>
 
-                                    <span
-                                        style="font-weight: bold; color: var(--text-muted); font-size: 0.9rem; margin-left: 4px;">年</span>
-                                </div>
-
-                                <div
-                                    style="flex: 1; display: flex; align-items: center; background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 0 8px;">
-                                    <select id="dob-month"
-                                        style="border: none; background: transparent; width: 100%; text-align: center; font-size: 1rem; outline: none; appearance: none; cursor: pointer;"
-                                        onchange="updateDaySelect(); updateAgeDisplay()">
-                                        <!-- Populated by JS -->
+                                    style="flex: 1; border: none; background: transparent; width: 100%; text-align:
+                                    right; padding: 12px 4px 12px 12px; font-size: 1rem; outline: none; appearance:
+                                    none; cursor: pointer; height: 100%;"
+                                    onchange="updateDaySelect(); updateAgeDisplay()">
+                                    <!-- Populated by JS -->
                                     </select>
                                     <span
-                                        style="font-weight: bold; color: var(--text-muted); font-size: 0.9rem; pointer-events: none;">月</span>
+                                        style="font-weight: bold; color: var(--text-muted); font-size: 0.9rem; pointer-events: none; padding-right: 12px; padding-left: 2px;">年</span>
                                 </div>
 
                                 <div
-                                    style="flex: 1; display: flex; align-items: center; background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 0 8px;">
+                                    style="flex: 1; display: flex; align-items: center; background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 0; overflow: hidden;">
+                                    <select id="dob-month"
+                                        style="flex: 1; border: none; background: transparent; width: 100%; text-align: right; padding: 12px 4px 12px 12px; font-size: 1rem; outline: none; appearance: none; cursor: pointer; height: 100%;"
+                                        onchange="updateDaySelect(); updateAgeDisplay()">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                    </select>
+                                    <span
+                                        style="font-weight: bold; color: var(--text-muted); font-size: 0.9rem; pointer-events: none; padding-right: 12px; padding-left: 2px;">月</span>
+                                </div>
+
+                                <div
+                                    style="flex: 1; display: flex; align-items: center; background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 0; overflow: hidden;">
                                     <select id="dob-day"
-                                        style="border: none; background: transparent; width: 100%; text-align: center; font-size: 1rem; outline: none; appearance: none; cursor: pointer;"
+                                        style="flex: 1; border: none; background: transparent; width: 100%; text-align: right; padding: 12px 4px 12px 12px; font-size: 1rem; outline: none; appearance: none; cursor: pointer; height: 100%;"
                                         onchange="updateAgeDisplay()">
                                         <!-- Populated by JS -->
                                     </select>
                                     <span
-                                        style="font-weight: bold; color: var(--text-muted); font-size: 0.9rem; pointer-events: none;">日</span>
+                                        style="font-weight: bold; color: var(--text-muted); font-size: 0.9rem; pointer-events: none; padding-right: 12px; padding-left: 2px;">日</span>
                                 </div>
                                 <!-- <datalist id="year-options"></datalist> -->
                             </div>
@@ -1469,8 +1486,11 @@
 
             if (!y || !m || !d) return;
             const dob = new Date(y, m - 1, d);
-
-            const info = getAgeInfo(dob, new Date());
+            let now = new Date();
+            if (dob > now) {
+                now = new Date(dob);
+            }
+            const info = getAgeInfo(dob, now);
 
             let text = "";
             if (info.age < 0) {
@@ -1530,13 +1550,13 @@
 
 
             // Populate Month
-            for (let i = 1; i <= 12; i++) {
-                const opt = document.createElement('option');
-                opt.value = i;
-                opt.text = i;
-                if (i === today.getMonth() + 1) opt.selected = true;
-                monthSelect.appendChild(opt);
+            // Month options are now hardcoded in HTML, so no need to populate here.
+            // Ensure the current month is selected if it exists in the hardcoded options.
+            const currentMonth = today.getMonth() + 1;
+            if (monthSelect.querySelector(`option[value="${currentMonth}"]`)) {
+                monthSelect.value = currentMonth;
             }
+
 
             // Populate Day (Initial)
             updateDaySelect(today.getDate());
@@ -1615,6 +1635,9 @@
             const eff_r_m = r_m - f_m;
 
             let currentDate = new Date(); // Start from this month
+            if (dob > currentDate) {
+                currentDate = new Date(dob);
+            }
             // Align to end of month for logic? Sim is monthly steps.
 
             let totalPrincipal = 0;
