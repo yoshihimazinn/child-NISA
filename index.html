@@ -930,7 +930,7 @@
                                 <div
                                     style="flex: 2; display: flex; align-items: center; background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 0; overflow: hidden;">
                                     <select id="dob-year"
-                                        style="flex: 1; border: none; background: transparent; width: 100%; text-align: right; padding: 12px 4px 12px 12px; font-size: 1rem; outline: none; appearance: none; cursor: pointer; height: 100%;"
+                                        style="flex: 1; border: none; background: transparent; width: 100%; text-align: center; padding: 12px 4px 12px 12px; font-size: 1rem; outline: none; appearance: none; cursor: pointer; height: 100%;"
                                         onchange="updateYear(this.value)">
                                     </select>
                                     <span
@@ -940,7 +940,7 @@
                                 <div
                                     style="flex: 1; display: flex; align-items: center; background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 0; overflow: hidden;">
                                     <select id="dob-month"
-                                        style="flex: 1; border: none; background: transparent; width: 100%; text-align: right; padding: 12px 4px 12px 12px; font-size: 1rem; outline: none; appearance: none; cursor: pointer; height: 100%;"
+                                        style="flex: 1; border: none; background: transparent; width: 100%; text-align: center; padding: 12px 4px 12px 12px; font-size: 1rem; outline: none; appearance: none; cursor: pointer; height: 100%;"
                                         onchange="updateDaySelect(); updateAgeDisplay()">
                                         <option value="1">1</option>
                                         <option value="2">2</option>
@@ -962,7 +962,7 @@
                                 <div
                                     style="flex: 1; display: flex; align-items: center; background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 0; overflow: hidden;">
                                     <select id="dob-day"
-                                        style="flex: 1; border: none; background: transparent; width: 100%; text-align: right; padding: 12px 4px 12px 12px; font-size: 1rem; outline: none; appearance: none; cursor: pointer; height: 100%;"
+                                        style="flex: 1; border: none; background: transparent; width: 100%; text-align: center; padding: 12px 4px 12px 12px; font-size: 1rem; outline: none; appearance: none; cursor: pointer; height: 100%;"
                                         onchange="updateAgeDisplay()">
                                         <!-- Populated by JS -->
                                     </select>
@@ -1721,7 +1721,7 @@
                 if (currentDate.getMonth() === 11) {
                     results.push({
                         year: currentDate.getFullYear(),
-                        age: ageInfo.age,
+                        age: Math.max(0, ageInfo.age), // Clamp to 0 to avoid negative age in graph
                         principal: totalPrincipal,
                         value: currentMonthVal,
                         yearlyInvest: yearlyInvested
