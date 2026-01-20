@@ -1555,6 +1555,11 @@
             updateDaySelect(today.getDate());
         }
 
+        function updateYear(val) {
+            updateDaySelect();
+            updateAgeDisplay();
+        }
+
         function updateDaySelect(selectedDay = null) {
             const year = parseInt(document.getElementById('dob-year').value) || new Date().getFullYear();
             const month = parseInt(document.getElementById('dob-month').value) || 1;
