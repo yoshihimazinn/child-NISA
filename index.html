@@ -449,6 +449,68 @@
             margin-top: 16px;
         }
 
+        /* Affiliate Section */
+        .affiliate-section {
+            margin-top: 40px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .affiliate-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+            border-bottom: 2px dashed #ccc;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .affiliate-container {
+            width: 300px;
+            height: 250px;
+            margin: 0 auto;
+            /* Center alignment */
+            position: relative;
+            /* For sponsor mark */
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+        }
+
+        .sponsor-mark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #ddd;
+            color: #666;
+            font-size: 10px;
+            padding: 2px 6px;
+            z-index: 10;
+        }
+
+        .affiliate-close {
+            position: absolute;
+            top: -36px;
+            right: -10px;
+            background: none;
+            border: none;
+            color: #555;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 15px;
+            /* Large hit area */
+            line-height: 1;
+            z-index: 20;
+        }
+
+        .affiliate-close:hover {
+            color: #000;
+        }
+
         input[type=range] {
             flex: 1;
             cursor: pointer;
@@ -1144,6 +1206,26 @@
                     <!-- Chart -->
                     <div class="chart-container">
                         <canvas id="simChart"></canvas>
+                    </div>
+
+                    <!-- Affiliate Section -->
+                    <div class="affiliate-section">
+                        <h3 class="affiliate-title">アンケートにご協力ください</h3>
+                        <!-- 
+                             To replace with real ad:
+                             1. Remove the 'bg-color' styling if needed.
+                             2. Paste the script/iframe code inside .affiliate-container.
+                        -->
+                        <div class="affiliate-container">
+                            <span class="sponsor-mark">PR</span>
+                            <button class="affiliate-close" onclick="this.closest('.affiliate-section').remove()"
+                                aria-label="広告を閉じる">× 閉じる</button>
+                            <a href="https://px.a8.net/svt/ejp?a8mat=4AVEZZ+5YC2K2+53AC+ZRIB5" rel="nofollow">
+                                <img border="0" width="300" height="250" alt=""
+                                    src="https://www23.a8.net/svt/bgt?aid=260126639360&wid=001&eno=01&mid=s00000023754006007000&mc=1"></a>
+                            <img border="0" width="1" height="1"
+                                src="https://www18.a8.net/0.gif?a8mat=4AVEZZ+5YC2K2+53AC+ZRIB5" alt="">
+                        </div>
                     </div>
 
                     <!-- Export & Table -->
